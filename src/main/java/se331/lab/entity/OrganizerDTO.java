@@ -17,6 +17,7 @@ import java.util.List;
 public class OrganizerDTO {
     Long id;
     String name;
+    List<String> images;
     @Builder.Default
     List<OrganizerOwnEventsDTO> ownEvents = new ArrayList<>();
 }

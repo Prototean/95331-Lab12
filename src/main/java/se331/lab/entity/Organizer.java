@@ -22,5 +22,9 @@ public class Organizer {
     @OneToMany (mappedBy = "organizer")
     @Builder.Default
     List<Event> ownEvents = new ArrayList<>();
+    @ElementCollection
+    @Column(length = 2048)
+    @Builder.Default
+    List<String> images = new ArrayList<>();
 
 }
