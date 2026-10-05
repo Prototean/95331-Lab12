@@ -4,6 +4,9 @@ import lombok.RequiredArgsConstructor;
 import jakarta.transaction.Transactional;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
 import org.springframework.context.ApplicationListener;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.AbstractPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 import se331.lab.entity.AuctionItem;
 import se331.lab.entity.Bid;
@@ -15,6 +18,9 @@ import se331.lab.repository.BidRepository;
 import se331.lab.repository.EventRepository;
 import se331.lab.repository.OrganizerRepository;
 import se331.lab.repository.ParticipantRepository;
+import se331.lab.security.user.Role;
+import se331.lab.security.user.User;
+import se331.lab.security.user.UserRepository;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -28,10 +34,12 @@ public class InitApp implements ApplicationListener<ApplicationReadyEvent> {
     final ParticipantRepository participantRepository;
     final AuctionItemRepository auctionItemRepository;
     final BidRepository bidRepository;
+    final UserRepository userRepository;
+
     @Override
     @Transactional
     public void onApplicationEvent(ApplicationReadyEvent applicationReadyEvent) {
-        Organizer org1,org2,org3;
+        Organizer org1, org2, org3;
         org1 = organizerRepository.save(Organizer.builder()
                 .name("CAMT").build());
         org2 = organizerRepository.save(Organizer.builder()
@@ -83,6 +91,46 @@ public class InitApp implements ApplicationListener<ApplicationReadyEvent> {
                 .build());
         tempEvent.setOrganizer(org3);
         org3.getOwnEvents().add(tempEvent);
+        addUser();
+    }
+    User user1,user2,user3;
+    private void addUser() {
+        PasswordEncoder encoder = new BCryptPasswordEncoder();
+        user1 = User.builder()
+                .username("admin")
+                .password(encoder.encode("admin"))
+                .firstname("admin")
+                .lastname("admin")
+                .email("admin@admin.com")
+                .enabled(true)
+                .build();
+
+        user2 = User.builder()
+                .username("user")
+                .password(encoder.encode("user"))
+                .firstname("user")
+                .lastname("user")
+                .email("enable@user.com")
+                .enabled(true)
+                .build();
+
+        user3 = User.builder()
+                .username("disableUser")
+                .password(encoder.encode("disableUser"))
+                .firstname("disableUser")
+                .lastname("disableUser")
+                .email("disableUser@user.com")
+                .enabled(false)
+                .build();
+
+        user1.getRoles().add(Role.ROLE_USER);
+        user1.getRoles().add(Role.ROLE_ADMIN);
+
+        user2.getRoles().add(Role.ROLE_USER);
+        user3.getRoles().add(Role.ROLE_USER);
+        userRepository.save(user1);
+        userRepository.save(user2);
+        userRepository.save(user3);
 
         List<Event> events = eventRepostiory.findAll();
         Event event1 = events.get(0);
