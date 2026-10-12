@@ -4,10 +4,13 @@ import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
+import lombok.ToString;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
+import se331.lab.entity.Organizer;
 import se331.lab.security.token.Token;
 
 import java.util.ArrayList;
@@ -40,7 +43,14 @@ public class User implements UserDetails {
   @Builder.Default
   private List<Role> roles = new ArrayList<>();
 
+  @OneToOne (mappedBy = "user")
+  @EqualsAndHashCode.Exclude
+  @ToString.Exclude
+  Organizer organizer;
+
   @OneToMany(mappedBy = "user")
+  @EqualsAndHashCode.Exclude
+  @ToString.Exclude
   private List<Token> tokens;
   @Override
   public Collection<? extends GrantedAuthority> getAuthorities() {
